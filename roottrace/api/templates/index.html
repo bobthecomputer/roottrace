@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}RootTrace · Tableau de bord{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Ingestion rapide</h2>
+  <p>Sélectionnez un fichier local ou indiquez une URL à analyser. Les données restent en local.</p>
+  <form action="/ui/ingest" method="post" enctype="multipart/form-data">
+    <div>
+      <label for="file">Fichier</label>
+      <input id="file" type="file" name="file" />
+    </div>
+    <div style="margin-top: 12px;">
+      <label for="url">URL</label>
+      <input id="url" type="text" name="url" placeholder="https://exemple.org/artefact.pdf" />
+    </div>
+    <div style="margin-top: 12px;">
+      <label for="source_uri">Source (annotation interne)</label>
+      <input id="source_uri" type="text" name="source_uri" placeholder="Dossier / référence" />
+    </div>
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+    <div class="actions">
+      <button type="submit">Analyser</button>
+      <a class="button-link" href="/docs" target="_blank" rel="noopener">API Docs</a>
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Dernières analyses</h2>
+  {% if jobs %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Entités</th>
+        <th>Hash</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td>#{{ job.id }}</td>
+        <td>{{ job.artifact_kind|upper }}</td>
+        <td>
+          {% if job.summary and job.summary.get("entities") %}
+            {{ job.summary.get("entities") }} trouvée(s)
+          {% else %}
+            Aucune
+          {% endif %}
+        </td>
+        <td><code>{{ job.sha256[:12] }}…</code></td>
+        <td><a class="button-link" href="/ui/job/{{ job.id }}">Voir</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Aucun artefact traité pour le moment.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}RootTrace · Dossier #{{ job.id }}{% endblock %}
+
+{% block content %}
+<a class="button-link" href="/">← Retour</a>
+
+<section class="card" style="margin-top: 16px;">
+  <h2>Résumé de l'artefact</h2>
+  <p><strong>Type :</strong> {{ job.artifact_kind|upper }} · <strong>Hash :</strong> <code>{{ job.sha256 }}</code></p>
+  <p><strong>Taille :</strong> {{ '%.1f'|format(job.size_bytes / 1024) }} KiB · <strong>Contenu :</strong> {{ job.content_type }}</p>
+  {% if job.summary %}
+  <ul>
+    {% for key, value in job.summary.items() %}
+    <li><strong>{{ key }}</strong> : {{ value }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if job.text_excerpt %}
+  <h3>Extrait texte</h3>
+  <p>{{ job.text_excerpt }}</p>
+  {% endif %}
+  <div class="actions">
+    <a class="button-link" href="/export/proof/{{ job.id }}">Télécharger le paquet de preuve</a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Entités détectées</h2>
+  {% if entities %}
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Valeur</th>
+        <th>Normalisé</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entity in entities %}
+      <tr>
+        <td>{{ entity.kind }}</td>
+        <td>{{ entity.value }}</td>
+        <td>{{ entity.normalized or '—' }}</td>
+        <td>{{ entity.score or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Aucune entité n'a été extraite.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Actions OSINT suggérées</h2>
+  {% if suggestions %}
+  <ul>
+    {% for suggestion in suggestions %}
+    <li>
+      <strong>{{ suggestion.tool }}</strong> · {{ suggestion.description }}<br />
+      <code>{{ suggestion.command }}</code>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>Aucune suggestion disponible pour cet artefact.</p>
+  {% endif %}
+</section>
+{% endblock %}

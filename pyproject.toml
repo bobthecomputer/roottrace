@@ -1,0 +1,127 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "roottrace"
+version = "0.1.0"
+description = "Local-first OSINT intake and evidence packaging service"
+authors = [
+  { name = "RootTrace Team" }
+]
+readme = "README.md"
+requires-python = "==3.11.*"
+license = { file = "LICENSE" }
+classifiers = [
+  "Programming Language :: Python :: 3.11",
+  "Framework :: FastAPI",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+keywords = ["osint", "forensics", "local-first", "evidence"]
+dependencies = [
+  "fastapi==0.115.2",
+  "uvicorn[standard]==0.23.2",
+  "sqlalchemy==2.0.21",
+  "alembic==1.12.1",
+  "pydantic==2.5.3",
+  "pydantic-settings==2.0.3",
+  "python-multipart==0.0.6",
+  "jinja2==3.1.2",
+  "pdfminer.six==20221105",
+  "exifread==3.0.0",
+  "ImageHash==4.3.1",
+  "Pillow==10.0.1",
+  "pytesseract==0.3.10",
+  "filetype==1.2.0",
+  "requests==2.31.0",
+  "python-dateutil==2.8.2",
+  "orjson==3.9.10",
+  "typer==0.9.0"
+]
+
+[project.optional-dependencies]
+packaging = ["pyinstaller==6.3.0"]
+
+[project.urls]
+Homepage = "https://example.com/roottrace"
+
+[project.scripts]
+roottrace = "roottrace.cli:main"
+roottrace-gui = "roottrace.ui.desktop:run_app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["roottrace*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"roottrace.api" = ["templates/*.html"]
+
+[tool.ruff]
+line-length = 100
+exclude = ["alembic"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "S",
+  "B",
+  "TID",
+  "C4",
+  "RUF",
+  "PTH"
+]
+ignore = ["S101", "B008"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+strict = true
+plugins = ["pydantic.mypy"]
+explicit_package_bases = true
+mypy_path = "./"
+
+[[tool.mypy.overrides]]
+module = ["PIL", "PIL.*", "pytesseract", "exifread", "filetype"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["imagehash", "imagehash.*"]
+ignore_missing_imports = true
+follow_imports = "skip"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["PyInstaller", "PyInstaller.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra --cov=roottrace --cov-report=term-missing"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+branch = true
+source = ["roottrace"]
+
+[tool.coverage.report]
+omit = [
+  "tests/*",
+  "alembic/*"
+]
+show_missing = true
+precision = 2
+
+[tool.pip-audit]
+require-hashes = false
+
+[tool.semgrep]
+config = ["p/ci"]
